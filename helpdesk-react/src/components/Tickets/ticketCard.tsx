@@ -1,6 +1,6 @@
 import { formatDate } from '../../utils/dateUtils';
 import { Card, CardContent, Typography, Box, Stack, Avatar, TextField, MenuItem, IconButton, Button } from "@mui/material";
-import { CalendarToday, Edit, Assignment, Visibility } from "@mui/icons-material";
+import { CalendarToday, Edit, Assignment, Visibility, Delete } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
@@ -11,6 +11,7 @@ import PriorityChip from "./PriorityChip";
 import { useNavigate } from "react-router-dom";
 
 export interface TicketCardProps {
+        onDeleteClick?: () => void;
     ticket: {
         id: string;
         subject: string;
@@ -37,7 +38,7 @@ export interface TicketCardProps {
     onEditClick?: () => void;
 }
 
-function TicketCard({ ticket, editable, statuses, priorities, users, onTicketChange, onEditClick }: TicketCardProps) {
+function TicketCard({ ticket, editable, statuses, priorities, users, onTicketChange, onEditClick, onDeleteClick }: TicketCardProps) {
         // מיפוי created_at ל-createdAt אם קיים
         const normalizedTicket = { ...ticket, createdAt: ticket.createdAt || (ticket as any).created_at };
     const [editableData, setEditableData] = useState(ticket);
@@ -90,9 +91,16 @@ function TicketCard({ ticket, editable, statuses, priorities, users, onTicketCha
                 }
             }}
         >
+            {/* כפתור עריכה */}
             {!editable && (role === UserRole.TEAM_LEAD || role === UserRole.DEVELOPER) && onEditClick && (
                 <IconButton onClick={(e) => { e.stopPropagation(); onEditClick(); }} sx={{ position: "absolute", top: 12, right: 12 }} size="small">
                     <Edit fontSize="small" />
+                </IconButton>
+            )}
+            {/* כפתור מחיקה למנהל בלבד */}
+            {!editable && role === UserRole.TEAM_LEAD && onDeleteClick && (
+                <IconButton onClick={(e) => { e.stopPropagation(); onDeleteClick(); }} sx={{ position: "absolute", top: 12, right: 48 }} size="small" color="error">
+                    <Delete fontSize="small" />
                 </IconButton>
             )}
 

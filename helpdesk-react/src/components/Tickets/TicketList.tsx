@@ -203,15 +203,42 @@ function TicketList() {
         <Grid container spacing={3}>
           {filteredTickets.map((ticket) => (
             <Grid key={ticket.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <TicketCard
-                ticket={{
-                  ...ticket,
-                  status_name: STATUS_LABELS[ticket.status],
-                  priority_name: PRIORITY_LABELS[ticket.priority]
-                }}
-                users={users.map(user => ({ id: Number(user.id), name: user.name || '', role: user.role }))}
-                onEditClick={() => handleEditClick(ticket)}
-              />
+                <TicketCard
+                  ticket={{
+                    ...ticket,
+                    status_name: STATUS_LABELS[ticket.status],
+                    priority_name: PRIORITY_LABELS[ticket.priority]
+                  }}
+                  users={users.map(user => ({ id: Number(user.id), name: user.name || '', role: user.role }))}
+                  onEditClick={() => handleEditClick(ticket)}
+                  onDeleteClick={async () => {
+                    // מחיקת טיקט עם SweetAlert2
+                    const Swal = (await import('sweetalert2')).default;
+                    const result = await Swal.fire({
+                      title: 'Are you sure?',
+                      text: 'You will not be able to recover this ticket after deletion!',
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#d33',
+                      cancelButtonColor: '#3085d6',
+                      confirmButtonText: 'Delete',
+                      cancelButtonText: 'Cancel',
+                      background: '#0d1620',
+                      color: '#fff',
+                    });
+                    if (result.isConfirmed) {
+                      dispatch(setLoading(true));
+                      const status = await import('../../service/Tickets').then(m => m.deleteTicketByID(Number(ticket.id)));
+                      if (status === 200) {
+                        dispatch(setTickets(tickets.filter(t => t.id !== ticket.id)));
+                        showSuccessAlert('Deleted!','The ticket has been deleted successfully.');
+                      } else {
+                        showWarningAlert('Error','Failed to delete the ticket.');
+                      }
+                      dispatch(setLoading(false));
+                    }
+                  }}
+                />
             </Grid>
           ))}
         </Grid>
