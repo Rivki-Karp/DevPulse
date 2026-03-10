@@ -27,6 +27,7 @@ function EditTicket({ open, onClose, onSuccess, ticketToEdit, users, statuses, p
             const priorityName = priorities.find(p => p.id === priorityId)?.name || "";
             
             const assignedId = ticketToEdit.assignedDeveloperId || "";
+            const creator = users.find(u => String(u.id) === String(ticketToEdit.created_by));
             
             setEditedTicket({
                 ...ticketToEdit,
@@ -34,10 +35,11 @@ function EditTicket({ open, onClose, onSuccess, ticketToEdit, users, statuses, p
                 priority_name: priorityName,
                 status_id: statusId,
                 priority_id: priorityId,
-                assignedDeveloperId: assignedId ? String(assignedId) : ""
+                assignedDeveloperId: assignedId ? String(assignedId) : "",
+                creator_name: creator?.name || `User ${ticketToEdit.created_by}`
             });
         }
-    }, [ticketToEdit, statuses, priorities]);
+    }, [ticketToEdit, statuses, priorities, users]);
 
     const handleTicketChange = (updated: any) => {
         setEditedTicket(updated);

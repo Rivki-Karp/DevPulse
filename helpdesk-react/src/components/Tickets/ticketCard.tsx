@@ -55,7 +55,9 @@ function TicketCard({ ticket, editable, statuses, priorities, users, onTicketCha
     };
     // שימוש בפונקציית העזר מה-utils
 
-    const displayName = ticket.creator_name || String(ticket.created_by);
+    const displayName = ticket.creator_name || 
+        (users?.find(u => String(u.id) === String(ticket.created_by))?.name) || 
+        "Unknown User";
     const initials = displayName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
     const handleFieldChange = (field: string, value: any) => {

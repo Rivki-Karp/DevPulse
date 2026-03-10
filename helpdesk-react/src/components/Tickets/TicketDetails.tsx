@@ -1,12 +1,15 @@
 import { formatDateTime } from '../../utils/dateUtils';
-import { Box, Button, Chip, CircularProgress, Divider, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Chip, Divider, Grid, Paper, Stack, Typography } from '@mui/material';
 import { ArrowBack, Person, Schedule } from '@mui/icons-material';
 import type { Ticket } from '../../models/ticket.model';
 import { STATUS_LABELS, PRIORITY_LABELS } from '../../models/ticket.model';
 import { useNavigate, useParams ,useLocation} from 'react-router-dom';
 import { useState,useEffect } from 'react';
 import { getTicketByID } from '../../service/Tickets';
+import { getAllUsers } from '../../service/Users';
+import type { User } from '../../models/user.model';
 import CommentSection from '../Comments/CommentSection';
+import LoadingSpinner from '../styleComponnents/LoadingSpinner';
 
 function TicketDetails() {
     const { id } = useParams<{ id: string }>();
@@ -18,11 +21,17 @@ function TicketDetails() {
         ? { ...location.state.ticket, createdAt: location.state.ticket.createdAt || location.state.ticket.created_at }
         : null;
     const [ticket, setTicket] = useState<Ticket | null>(initialTicket);
-    
+    const [users, setUsers] = useState<User[]>([]);
 
     const [loading, setLoading] = useState(!ticket);
 
     useEffect(() => {
+        // Fetch users list
+        getAllUsers().then(usersData => {
+            setUsers(usersData);
+        }).catch(error => {
+            console.error('Failed to fetch users:', error);
+        });
 
         if (!ticket && id) {
             getTicketByID(Number(id)).then(data => {
@@ -50,7 +59,7 @@ function TicketDetails() {
         }
     }, [id, ticket]);
 
-    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress /></Box>;
+    if (loading) return <LoadingSpinner />;
     if (!ticket) return <Typography variant="h6">Ticket not found.</Typography>;
 
     return (
@@ -90,7 +99,9 @@ function TicketDetails() {
                                 <Person color="action" />
                                 <Box>
                                     <Typography variant="caption" display="block" color="text.secondary">Reporter</Typography>
-                                    <Typography variant="body2" fontWeight={600}>{ticket.created_by || 'System'}</Typography>
+                                    <Typography variant="body2" fontWeight={600}>
+                                        {users.find(u => String(u.id) === String(ticket.created_by))?.name || `User ${ticket.created_by}` || 'System'}
+                                    </Typography>
                                 </Box>
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>

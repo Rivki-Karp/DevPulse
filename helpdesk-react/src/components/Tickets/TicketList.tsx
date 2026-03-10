@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setTickets, setLoading, setError } from "../../store/ticketsSlice";
 import EditTicket from "./EditTicket";
 import { getAllTickets } from "../../service/Tickets";
-import { getDevelopers } from "../../service/Users";
+import { getAllUsers } from "../../service/Users";
 import { showSuccessAlert, showWarningAlert } from "../styleComponnents/myAlert";
 import TicketCard from "./ticketCard";
 import { UserRole, type User } from "../../models/user.model";
@@ -78,7 +78,7 @@ function TicketList() {
         dispatch(setTickets(mappedTickets));
         if (user?.role === UserRole.TEAM_LEAD) {
           try {
-            const allUsersData = await getDevelopers();
+            const allUsersData = await getAllUsers();
             setUsers(allUsersData);
           } catch (error) {
             showWarningAlert("Oops...", "Failed to load users. Please try again.");
@@ -201,17 +201,20 @@ function TicketList() {
       {/* Ticket list */}
       {filteredTickets.length > 0 ? (
         <Grid container spacing={3}>
-          {filteredTickets.map((ticket) => (
-            <Grid key={ticket.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                <TicketCard
-                  ticket={{
-                    ...ticket,
-                    status_name: STATUS_LABELS[ticket.status],
-                    priority_name: PRIORITY_LABELS[ticket.priority]
-                  }}
-                  users={users.map(user => ({ id: Number(user.id), name: user.name || '', role: user.role }))}
-                  onEditClick={() => handleEditClick(ticket)}
-                  onDeleteClick={async () => {
+          {filteredTickets.map((ticket) => {
+            const creator = users.find(u => String(u.id) === String(ticket.created_by));
+            return (
+              <Grid key={ticket.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                  <TicketCard
+                    ticket={{
+                      ...ticket,
+                      status_name: STATUS_LABELS[ticket.status],
+                      priority_name: PRIORITY_LABELS[ticket.priority],
+                      creator_name: creator?.name || `User ${ticket.created_by}`
+                    }}
+                    users={users.map(user => ({ id: Number(user.id), name: user.name || '', role: user.role }))}
+                    onEditClick={() => handleEditClick(ticket)}
+                    onDeleteClick={async () => {
                     // מחיקת טיקט עם SweetAlert2
                     const Swal = (await import('sweetalert2')).default;
                     const result = await Swal.fire({
@@ -239,8 +242,9 @@ function TicketList() {
                     }
                   }}
                 />
-            </Grid>
-          ))}
+              </Grid>
+            );
+          })}
         </Grid>
       ) : (
         <Typography sx={{ mt: 4, textAlign: "center", color: "text.secondary" }}>

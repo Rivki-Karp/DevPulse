@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import { Container, Paper, Typography, Box } from "@mui/material";
+import { Container, Typography, Box } from "@mui/material";
+import FormPaper from "./styleComponnents/FormPaper";
 
 import { MyForm } from "./Froms/MyFrom";
 import type { FormState } from "../models/froms.model";
@@ -92,7 +93,7 @@ function Register() {
     return (
         <Container maxWidth="xs">
             <Box sx={{ mt: 8 }}>
-                <Paper sx={{ p: 4, borderRadius: 3 }}>
+                <FormPaper>
                     <Typography variant="h4" align="center" gutterBottom>
                         Join DevPulse
                     </Typography>
@@ -109,7 +110,7 @@ function Register() {
                         Already have an account?{" "}
                         <Link to="/login">Login here</Link>
                     </Typography>
-                </Paper>
+                </FormPaper>
             </Box>
         </Container>
     );

@@ -1,5 +1,5 @@
-import { Chip } from "@mui/material";
-import { CheckCircle, HourglassEmpty, RadioButtonUnchecked } from "@mui/icons-material";
+import ColoredChip from "../styleComponnents/ColoredChip";
+import { STATUS_COLORS, DEFAULT_STATUS_CONFIG } from "../styleComponnents/chipStyles.tsx";
 
 interface StatusChipProps {
   statusName: string;
@@ -7,58 +7,9 @@ interface StatusChipProps {
 
 function StatusChip({ statusName }: StatusChipProps) {
   const statusLower = statusName.toLowerCase();
+  const config = STATUS_COLORS[statusLower] || DEFAULT_STATUS_CONFIG;
   
-  // Done/Closed - ירוק
-  if (statusLower === "done" || statusLower === "closed") {
-    return (
-      <Chip 
-        icon={<CheckCircle />} 
-        label={statusName} 
-        size="small" 
-        sx={{
-          bgcolor: '#4caf50',
-          color: '#ffffff',
-          fontWeight: 700,
-          fontSize: '0.85rem',
-          '& .MuiChip-icon': { color: '#ffffff' }
-        }} 
-      />
-    );
-  }
-  
-  // In Progress - כתום
-  if (statusLower === "in progress" || statusLower === "in-progress") {
-    return (
-      <Chip 
-        icon={<HourglassEmpty />} 
-        label={statusName} 
-        size="small" 
-        sx={{
-          bgcolor: '#ff9800',
-          color: '#ffffff',
-          fontWeight: 700,
-          fontSize: '0.85rem',
-          '& .MuiChip-icon': { color: '#ffffff' }
-        }} 
-      />
-    );
-  }
-  
-  // Open - כחול
-  return (
-    <Chip 
-      icon={<RadioButtonUnchecked />} 
-      label={statusName} 
-      size="small" 
-      sx={{
-        bgcolor: '#2196f3',
-        color: '#ffffff',
-        fontWeight: 700,
-        fontSize: '0.85rem',
-        '& .MuiChip-icon': { color: '#ffffff' }
-      }} 
-    />
-  );
+  return <ColoredChip label={statusName} config={config} />;
 }
 
 export default StatusChip;
